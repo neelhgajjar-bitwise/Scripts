@@ -49,6 +49,8 @@ public class notesaveScript : MonoBehaviour
 	public static int notecounter = 0;
 	int notecounterexisting;
 	int datacounter = 0;
+    int remarksindex = 0;
+    string remarksbtnname = "";
 	int recordsavecounter = 0;
 	string[] name_of_container = new string[100];
 	// int stickeynotecounter;
@@ -64,7 +66,12 @@ public class notesaveScript : MonoBehaviour
 	public bool updateon = true;
 	bool boolManualUpdate = true;
 	bool createnotecolor = false;
-	public static int projectidnumber;
+    bool addremarksbool = false;
+    bool editremarksbool = false;
+    public static bool editNoteGeneralPopup = false;
+    public static bool editNoteRemarkPopup = false;
+
+    public static int projectidnumber;
 	// Use this for initialization
 	void Start()
 	{
@@ -75,7 +82,8 @@ public class notesaveScript : MonoBehaviour
 		}
 		//getdataofnote();
 		TweenAlpha.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0f, 0);
-		StartCoroutine(updateoff());
+       // TweenAlpha.Begin(GameObject.Find("noteRemarkLbl_"), 0f, 0);
+        StartCoroutine(updateoff());
 		dynamicnote = new GameObject[100];
 		StartCoroutine(manualStart());
 	}
@@ -158,7 +166,6 @@ public class notesaveScript : MonoBehaviour
 			int temp_index = int.Parse(new_stickey_note_name);
 			stickey_note_name[temp_index] = titleofnote;
 			notenumber[temp_index] = int.Parse(new_stickey_note_name);
-
 			notecreatedate = System.DateTime.Now.ToString("dd/MM/yyyy");
 			noteupdatedate = System.DateTime.Now.ToString("dd/MM/yyyy");
 			//print("## updated note number : " + notecounterexisting);
@@ -170,7 +177,6 @@ public class notesaveScript : MonoBehaviour
 			dbcmd2.Parameters.Add(new SqliteParameter("@content", contentofnote));
 			dbcmd2.Parameters.Add(new SqliteParameter("@createdate", notecreatedate));
 			dbcmd2.Parameters.Add(new SqliteParameter("@updatedate", noteupdatedate));
-
 			dbcmd2.CommandText = sqlQuery;
 			reader1 = dbcmd2.ExecuteReader();
 			reader1.Close();
@@ -267,7 +273,7 @@ public class notesaveScript : MonoBehaviour
 			dbcmddelete1.CommandText = sqlDelete;
 			readerdelete = dbcmddelete1.ExecuteReader();
 			//
-			string sqlQuery1 = "SELECT proj_id,note_number,note_title,note_content,note_color_title,note_color_body,note_color_statusbar,typeOfContainer,is_deleted,note_priority,note_status FROM stickeynoteTable WHERE proj_id=" + projectidnumber + " AND typeOfContainer not like 'note_' order by note_priority desc";//"SELECT proj_name,proj_remarks,createdate,proj_version FROM projectTable desc";
+			string sqlQuery1 = "SELECT proj_id,note_number,note_title,note_content,note_remarks,note_color_title,note_color_body,note_color_statusbar,typeOfContainer,is_deleted,note_priority,note_status FROM stickeynoteTable WHERE proj_id=" + projectidnumber + " AND typeOfContainer not like 'note_' order by note_priority desc";//"SELECT proj_name,proj_remarks,createdate,proj_version FROM projectTable desc";
 			dbcmd.CommandText = sqlQuery1;
 			readerdelete1 = dbcmd.ExecuteReader();
 			while (readerdelete1.Read())
@@ -277,16 +283,16 @@ public class notesaveScript : MonoBehaviour
 			notenumber[datacounter] = readerdelete1.GetInt32(1);
 			title[datacounter] = readerdelete1.GetString(2);
 			content[datacounter] = readerdelete1.GetString(3);
-			//remarks[datacounter] = reader.GetString(4);
-			colorofnotetitle[datacounter] = readerdelete1.GetString(4);
-			colorofnotebody[datacounter] = readerdelete1.GetString(5);
-			colorofnotestatusbar[datacounter] = readerdelete1.GetString(6);
-			typeOfContainer[datacounter] = readerdelete1.GetString(7);
+			remarks[datacounter] = reader.GetString(4);
+			colorofnotetitle[datacounter] = readerdelete1.GetString(5);
+			colorofnotebody[datacounter] = readerdelete1.GetString(6);
+			colorofnotestatusbar[datacounter] = readerdelete1.GetString(7);
+			typeOfContainer[datacounter] = readerdelete1.GetString(8);
 			//createdate[datacounter] = reader.GetString(2);
 			//version[datacounter] = reader.GetDouble(3);
-			soft_delete[datacounter] = readerdelete1.GetInt32(8);
-			notePriority[datacounter] = readerdelete1.GetFloat(9);
-			notestatus[datacounter] = readerdelete1.GetString(10);
+			soft_delete[datacounter] = readerdelete1.GetInt32(9);
+			notePriority[datacounter] = readerdelete1.GetFloat(10);
+			notestatus[datacounter] = readerdelete1.GetString(11);
 			//print("proj_id" + datacounter + "=" + projid[datacounter] + "note_number" + datacounter + "=" + notenumber[datacounter] + "   note_title" + datacounter + "=" + title[datacounter] + " note_content" + datacounter + "=" + content[datacounter] + " note_remarks" + datacounter+"=" + remarks[datacounter] + " note_color" + datacounter + "=" + colorofnote[datacounter] + " typeOfContainer" + datacounter + "=" + typeOfContainer[datacounter]) ;
 			datacounter++;
 			}
@@ -322,7 +328,7 @@ public class notesaveScript : MonoBehaviour
 			dbcmddelete.CommandText = sqlDelete;
 			reader = dbcmddelete.ExecuteReader();
 			//
-			string sqlQuery1 = "SELECT proj_id,note_number,note_title,note_content,note_color_title,note_color_body,note_color_statusbar,typeOfContainer,is_deleted,note_priority,note_status FROM stickeynoteTable WHERE proj_id=" + projectidnumber + " AND typeOfContainer not like 'note_' order by note_priority desc";//"SELECT proj_name,proj_remarks,createdate,proj_version FROM projectTable desc";
+			string sqlQuery1 = "SELECT proj_id,note_number,note_title,note_content,note_remarks,note_color_title,note_color_body,note_color_statusbar,typeOfContainer,is_deleted,note_priority,note_status FROM stickeynoteTable WHERE proj_id=" + projectidnumber + " AND typeOfContainer not like 'note_' order by note_priority desc";//"SELECT proj_name,proj_remarks,createdate,proj_version FROM projectTable desc";
 			dbcmd.CommandText = sqlQuery1;
 			reader = dbcmd.ExecuteReader();
 			while (reader.Read())
@@ -332,16 +338,16 @@ public class notesaveScript : MonoBehaviour
 			notenumber[datacounter] = reader.GetInt32(1);
 			title[datacounter] = reader.GetString(2);
 			content[datacounter] = reader.GetString(3);
-			//remarks[datacounter] = reader.GetString(4);
-			colorofnotetitle[datacounter] = reader.GetString(4);
-			colorofnotebody[datacounter] = reader.GetString(5);
-			colorofnotestatusbar[datacounter] = reader.GetString(6);
-			typeOfContainer[datacounter] = reader.GetString(7);
+			remarks[datacounter] = reader.GetString(4);
+			colorofnotetitle[datacounter] = reader.GetString(5);
+			colorofnotebody[datacounter] = reader.GetString(6);
+			colorofnotestatusbar[datacounter] = reader.GetString(7);
+			typeOfContainer[datacounter] = reader.GetString(8);
 			//createdate[datacounter] = reader.GetString(2);
 			//version[datacounter] = reader.GetDouble(3);
-			soft_delete[datacounter] = reader.GetInt32(8);
-			notePriority[datacounter] = reader.GetFloat(9);
-			notestatus[datacounter] = reader.GetString(10);
+			soft_delete[datacounter] = reader.GetInt32(9);
+			notePriority[datacounter] = reader.GetFloat(10);
+			notestatus[datacounter] = reader.GetString(11);
 			//print("proj_id" + datacounter + "=" + projid[datacounter] + "note_number" + datacounter + "=" + notenumber[datacounter] + "   note_title" + datacounter + "=" + title[datacounter] + " note_content" + datacounter + "=" + content[datacounter] + " note_remarks" + datacounter+"=" + remarks[datacounter] + " note_color" + datacounter + "=" + colorofnote[datacounter] + " typeOfContainer" + datacounter + "=" + typeOfContainer[datacounter]) ;
 			datacounter++;
 			}
@@ -361,9 +367,9 @@ public class notesaveScript : MonoBehaviour
 			dbcon = null;
 			dbcmd1.Dispose();
 			dbcmd1 = null;
-			setAllNoteSetRuntime();
+            setAllNoteSetRuntime();
 			}
-
+            
 			void counterIncrementFunction(GameObject note, string typeOfContainer)
 			{
 			if (typeOfContainer.Equals("keypartnerGrid"))
@@ -412,7 +418,7 @@ public class notesaveScript : MonoBehaviour
 			c9 += 150;
 			}
 			}
-
+            
 			void setAllNoteSetRuntime()
 			{
 			for (int j = 0; j < recordsavecounter; j++)
@@ -430,25 +436,33 @@ public class notesaveScript : MonoBehaviour
 			GameObject.Find("titleSprite_" + j).transform.GetChild(0).name = ("titleShadowSprite_" + j).ToString();
 			GameObject.Find("StatusbarContainer_" + j).transform.GetChild(0).name = ("statusbarSprite_" + j).ToString();
 			GameObject.Find("StatusbarContainer_" + j).transform.GetChild(1).name = ("noteStatus_" + j).ToString();
-			GameObject.Find("stickeyNoteContainer_" + j).transform.GetChild(2).name = ("mainbodyContainer_" + j).ToString();
+            GameObject.Find("StatusbarContainer_" + j).transform.GetChild(3).name = ("noteInfoIcon_" + j).ToString();
+           
+            GameObject.Find("stickeyNoteContainer_" + j).transform.GetChild(2).name = ("mainbodyContainer_" + j).ToString();
 			//  GameObject.Find("stickeyNoteContainer_" + j).transform.GetChild(3).name = ("Remarksnoteimg_" + j).ToString();
 			//   GameObject.Find("stickeyNoteContainer_" + j).transform.GetChild(4).name = ("colorbyimg_" + j).ToString();
 			//  GameObject.Find("RemarksContainer_" + j).transform.GetChild(0).name = ("Remarkstitlelbl_" + j).ToString();
 			// GameObject.Find("RemarksContainer_" + j).transform.GetChild(1).name = ("Remarksbodylbl_" + j).ToString();
 			GameObject.Find("mainbodyContainer_" + j).transform.GetChild(0).name = ("notetitle_" + j).ToString();
 			GameObject.Find("mainbodyContainer_" + j).transform.GetChild(1).name = ("notecontent_" + j).ToString();
-			GameObject.Find("notetitle_" + j).GetComponent<UILabel>().text = title[j];
+            GameObject.Find("mainbodyContainer_" + j).transform.GetChild(2).name = ("noteRemarkContent_" + j).ToString();
+            GameObject.Find("mainbodyContainer_" + j).transform.GetChild(3).name = ("noteRemarkLbl_" + j).ToString();
+            
+            GameObject.Find("notetitle_" + j).GetComponent<UILabel>().text = title[j];
 			GameObject.Find("notecontent_" + j).GetComponent<UILabel>().text = content[j];
 			GameObject.Find("titleSprite_" + j).GetComponent<UISprite>().spriteName = colorofnotetitle[j];
 			GameObject.Find("bodySprite_" + j).GetComponent<UISprite>().spriteName = colorofnotebody[j];
 			GameObject.Find("statusbarSprite_" + j).GetComponent<UISprite>().spriteName = colorofnotestatusbar[j];
 			GameObject.Find("noteStatus_" + j).GetComponent<UILabel>().text = notestatus[j];
-			}
+            GameObject.Find("noteRemarkContent_" + j).GetComponent<UILabel>().text = remarks[j];
+            TweenAlpha.Begin(GameObject.Find("noteRemarkLbl_" + j), 0, 0);
+            TweenAlpha.Begin(GameObject.Find("noteRemarkContent_" + j), 0, 0);
+            }
 			}
 			//refreshGrid();
 			createnewnote();
 			boolManualUpdate = true;
-			}
+            }
 			void refreshGrid()
 			{
 			GameObject.Find("keypartnerGrid").GetComponent<UIGrid>().enabled = true;
@@ -482,8 +496,8 @@ public class notesaveScript : MonoBehaviour
 			GameObject.Find("stickeynote_" + new_stickey_note_name).GetComponent<UIWidget>().width = 120;
 			TweenScale.Begin(GameObject.Find("stickeynote_" + new_stickey_note_name), 0, new Vector2(0.5f, 0.5f));
 			print("change size 0.5 of " + "stickeynote_" + new_stickey_note_name);
-
-			boolManualUpdate = true;
+            TweenAlpha.Begin(GameObject.Find("noteRemarkLbl_" + new_stickey_note_name), 0, 0);
+        	boolManualUpdate = true;
 			}
 
 			void defineNameAtRuntime()
@@ -495,10 +509,11 @@ public class notesaveScript : MonoBehaviour
 			GameObject.Find("titleSprite_" + recordsavecounter).transform.GetChild(0).name = ("titleShadowSprite_" + recordsavecounter).ToString();
 			GameObject.Find("StatusbarContainer_" + recordsavecounter).transform.GetChild(0).name = ("statusbarSprite_" + recordsavecounter).ToString();
 			GameObject.Find("StatusbarContainer_" + recordsavecounter).transform.GetChild(1).name = ("noteStatus_" + recordsavecounter).ToString();
-
-			//  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(0).name = ("ColorContainer_" + recordsavecounter).ToString();
-			//  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(1).name = ("RemarksContainer_" + recordsavecounter).ToString();
-			GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(2).name = ("mainbodyContainer_" + recordsavecounter).ToString();
+            GameObject.Find("StatusbarContainer_" + recordsavecounter).transform.GetChild(3).name = ("noteInfoIcon_" + recordsavecounter).ToString();
+            
+        //  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(0).name = ("ColorContainer_" + recordsavecounter).ToString();
+        //  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(1).name = ("RemarksContainer_" + recordsavecounter).ToString();
+            GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(2).name = ("mainbodyContainer_" + recordsavecounter).ToString();
 			//  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(3).name = ("Remarksnoteimg_" + recordsavecounter).ToString();
 			//  GameObject.Find("stickeyNoteContainer_" + recordsavecounter).transform.GetChild(4).name = ("colorbyimg_" + recordsavecounter).ToString();
 			//  GameObject.Find("stickeyNoteContainer_" + noteCounter).transform.GetChild(5).name = ("notebodyimg_" + noteCounter).ToString();
@@ -512,12 +527,10 @@ public class notesaveScript : MonoBehaviour
 			// GameObject.Find("RemarksContainer_" + recordsavecounter).transform.GetChild(1).name = ("Remarksbodylbl_" + recordsavecounter).ToString();
 			GameObject.Find("mainbodyContainer_" + recordsavecounter).transform.GetChild(0).name = ("notetitle_" + recordsavecounter).ToString();
 			GameObject.Find("mainbodyContainer_" + recordsavecounter).transform.GetChild(1).name = ("notecontent_" + recordsavecounter).ToString();
-			// GameObject.Find("grey_" + recordsavecounter).transform.GetChild(0).name = ("greyselect_" + recordsavecounter).ToString();
-			// GameObject.Find("yellow_" + recordsavecounter).transform.GetChild(0).name = ("yellowselect_" + recordsavecounter).ToString();
-			// GameObject.Find("pink_" + recordsavecounter).transform.GetChild(0).name = ("pinkselect_" + recordsavecounter).ToString();
-			// GameObject.Find("blue_" + recordsavecounter).transform.GetChild(0).name = ("blueselect_" + recordsavecounter).ToString();
-			// GameObject.Find("green_" + recordsavecounter).transform.GetChild(0).name = ("greenselect_" + recordsavecounter).ToString();
-			}
+            GameObject.Find("mainbodyContainer_" + recordsavecounter).transform.GetChild(2).name = ("noteRemarkContent_" + recordsavecounter).ToString();
+            GameObject.Find("mainbodyContainer_" + recordsavecounter).transform.GetChild(3).name = ("noteRemarkLbl_" + recordsavecounter).ToString();
+           
+    }
 
 			void Update()
 			{
@@ -581,6 +594,7 @@ public class notesaveScript : MonoBehaviour
 			colorofnotebody[i] = GameObject.Find("bodySprite_" + i).GetComponent<UISprite>().spriteName;
 			colorofnotestatusbar[i] = GameObject.Find("statusbarSprite_" + i).GetComponent<UISprite>().spriteName;
 			notestatus[i]=GameObject.Find("noteStatus_"+i).GetComponent<UILabel>().text;
+            remarks[i] = GameObject.Find("noteRemarkContent_" + i).GetComponent<UILabel>().text;
 			//print("color==>>" + colorofnote[i]);
 			//updatequery = "UPDATE stickeynoteTable SET typeOfContainer=" + "'" + name_of_container[i] + "'" + "WHERE note_number=" + i + " " + "AND proj_id=" + projectidnumber + "";
 			//updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "WHERE note_number=" + i + " " + "AND proj_id=" + projectidnumber + "";
@@ -594,11 +608,11 @@ public class notesaveScript : MonoBehaviour
 			xaxis = Math.Abs(xaxis);
 
 			//updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + xaxis + "," + "note_color_title=" + "'" + colorofnotetitle[i] + "'" + "," + "note_color_body=" + "'" + colorofnotebody[i] + "'" + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
-			updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + xaxis + "," + "note_color_title=" + "'" + colorofnotetitle[i] + "'" + "," + "note_color_body=" + "'" + colorofnotebody[i] + "'" + "," + "note_color_statusbar=" + "'" + colorofnotestatusbar[i] + "'" + "," + "note_status=" + "'" + notestatus[i] + "'" + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
+			updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + xaxis + "," + "note_color_title=" + "'" + colorofnotetitle[i] + "'" + "," + "note_color_body=" + "'" + colorofnotebody[i] + "'" + "," + "note_color_statusbar=" + "'" + colorofnotestatusbar[i] + "'" + "," + "note_status=" + "'" + notestatus[i] + "'"+"," + "note_remarks=" + "'" + remarks[i] + "'" + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
 			}
 			else
 			{
-			updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + (GameObject.Find("stickeynote_" + i).transform.localPosition.y) + "," + "note_color_title=" + "'" + colorofnotetitle[i] + "'" + "," + "note_color_statusbar=" + "'" + colorofnotestatusbar[i] + "'" + "," + "note_color_body=" + "'" + colorofnotebody[i] + "'" + "," + "note_status=" + "'" + notestatus[i] + "'" + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
+			updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + (GameObject.Find("stickeynote_" + i).transform.localPosition.y) + "," + "note_color_title=" + "'" + colorofnotetitle[i] + "'" + "," + "note_color_statusbar=" + "'" + colorofnotestatusbar[i] + "'" + "," + "note_color_body=" + "'" + colorofnotebody[i] + "'" + "," + "note_status=" + "'" + notestatus[i] + "'" + "," + "note_remarks=" + "'" + remarks[i] + "'" + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
 			}
 			//updatequery = "UPDATE stickeynoteTable SET note_title=" + "'" + title[i] + "'" + "," + "note_content=" + "'" + content[i] + "'" + "," + "typeOfContainer=" + "'" + name_of_container[i] + "'" + "," + "note_priority=" + (GameObject.Find("stickeynote_" + i).transform.GetSiblingIndex()) + " WHERE note_number=" + notenumber[i] + " " + "AND proj_id=" + projectidnumber + "";
 			//3.14
@@ -736,10 +750,15 @@ public class notesaveScript : MonoBehaviour
 
 			void editNoteOnCreate()
 			{
-			print("--------------------------------------------> " + (totalchild - 1));
-			//TweenScale.Begin(GameObject.Find("stickeynote_" + (totalchild-1)), 0, new Vector2(1f, 1f));
-			createnotecolor = true;
-			notestatusbool = true;
+             editNoteGeneralPopup = true;
+             editNoteRemarkPopup = false;
+
+            print("--------------------------------------------> " + (totalchild - 1));
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkTitle_"), 0, 0);
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkBody_"), 0, 0);
+            //TweenScale.Begin(GameObject.Find("stickeynote_" + (totalchild-1)), 0, new Vector2(1f, 1f));
+             createnotecolor = true;
+			 notestatusbool = true;
 			colorBoxToNormalSize();
 			TweenScale.Begin(GameObject.Find("yellowColorBox"), 0, new Vector3(0.15f, 0.3f, 0));
 			GameObject.Find("EdittitleSprite").GetComponent<UISprite>().spriteName = "yellowTitle";
@@ -751,11 +770,17 @@ public class notesaveScript : MonoBehaviour
 			TweenScale.Begin(GameObject.Find("stickeynote_" + new_stickey_note_name), 0, new Vector2(1f, 1f));
 			TweenAlpha.Begin(GameObject.Find("BlackbgContainerfirst"), 0.5f, 0.8f);
 			TweenScale.Begin(GameObject.Find("EditNote_"), 0.5f, new Vector3(1, 1, 0));
-			TweenAlpha.Begin(GameObject.Find("middleContainer"), 0, 0.1f);
+            GameObject.Find("EditNotebody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+            GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+            TweenAlpha.Begin(GameObject.Find("EditNotebody_"), 0, 1);
+            TweenAlpha.Begin(GameObject.Find("EditNoteTitle_"), 0, 1);
+            TweenAlpha.Begin(GameObject.Find("middleContainer"), 0, 0.1f);
 			GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().value = GameObject.Find("notetitle_" + new_stickey_note_name).GetComponent<UILabel>().text;
 			GameObject.Find("EditNotebody_").GetComponent<UIInput>().value = GameObject.Find("notecontent_" + new_stickey_note_name).GetComponent<UILabel>().text;
 			GameObject.Find("editNoteStatus").GetComponent<UILabel>().text = GameObject.Find("noteStatus_" + new_stickey_note_name).GetComponent<UILabel>().text;
-			}
+            GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().value = GameObject.Find("noteRemarkContent_" + new_stickey_note_name).GetComponent<UILabel>().text;
+            
+            }
 
 			public void clickOnBlackBgOnCreate()
 			{
@@ -765,7 +790,9 @@ public class notesaveScript : MonoBehaviour
 			TweenAlpha.Begin(GameObject.Find("middleContainer"), 0, 1f);
 			GameObject.Find("notetitle_" + new_stickey_note_name).GetComponent<UILabel>().text = GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().value;
 			GameObject.Find("notecontent_" + new_stickey_note_name).GetComponent<UILabel>().text = GameObject.Find("EditNotebody_").GetComponent<UIInput>().value;
-			GameObject.Find("stickeynote_" + new_stickey_note_name).GetComponent<ExampleDragDropItem>().restriction = ExampleDragDropItem.Restriction.PressAndHold;
+            GameObject.Find("noteRemarkContent_" + new_stickey_note_name).GetComponent<UILabel>().text = GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().value;
+            GameObject.Find("stickeynote_" + new_stickey_note_name).GetComponent<ExampleDragDropItem>().restriction = ExampleDragDropItem.Restriction.PressAndHold;
+            TweenAlpha.Begin(GameObject.Find("noteRemarkContent_" + new_stickey_note_name), 0, 0);
 			createnewnote();
 			}
 
@@ -943,17 +970,92 @@ public class notesaveScript : MonoBehaviour
 
 			public void Addremarks()
 			{
+                StartCoroutine(AddRemarksenum());
+                //LeanTween.scaleX(GameObject.Find("stickeynote_" + indexofnote),1,1);
+            }
 
-			}
 
-			public void changeStatusOfNote()
+     IEnumerator AddRemarksenum()
+     {
+        remarksbtnname = UIButton.current.name;
+        remarksindex = int.Parse(remarksbtnname.Substring(13, (remarksbtnname.Length - 13)));
+
+        if (GameObject.Find("noteRemarkLbl_" + remarksindex).GetComponent<UILabel>().alpha == 0)
+             {
+                LeanTween.scaleX(GameObject.Find("stickeynote_" + remarksindex), 0, 1);
+                TweenAlpha.Begin(GameObject.Find("notetitle_" + remarksindex), 0.5f, 0);
+                TweenAlpha.Begin(GameObject.Find("notecontent_" + remarksindex), 0.5f, 0);
+                yield return new WaitForSeconds(1f);
+                LeanTween.scaleX(GameObject.Find("stickeynote_" + remarksindex), 1, 1);
+                TweenAlpha.Begin(GameObject.Find("noteRemarkLbl_" + remarksindex), 0.5f, 1);
+                TweenAlpha.Begin(GameObject.Find("noteRemarkContent_" + remarksindex), 0.5f, 1);
+             }
+            
+        
+        else
+        {
+            remarksbtnname = UIButton.current.name;
+            remarksindex = int.Parse(remarksbtnname.Substring(13, (remarksbtnname.Length - 13)));
+            if (GameObject.Find("noteRemarkLbl_" + remarksindex).GetComponent<UILabel>().alpha == 1)
+            {
+                LeanTween.scaleX(GameObject.Find("stickeynote_" + remarksindex), 0, 1);
+                TweenAlpha.Begin(GameObject.Find("notetitle_" + remarksindex), 0.5f, 1);
+                TweenAlpha.Begin(GameObject.Find("notecontent_" + remarksindex), 0.5f, 1);
+                yield return new WaitForSeconds(1f);
+                LeanTween.scaleX(GameObject.Find("stickeynote_" + remarksindex), 1, 1);
+                TweenAlpha.Begin(GameObject.Find("noteRemarkLbl_" + remarksindex), 0.5f, 0);
+                TweenAlpha.Begin(GameObject.Find("noteRemarkContent_" + remarksindex), 0.5f, 0);
+            }
+        }
+     }
+
+            public void EditAddremarks()
+            {
+                StartCoroutine(EditAddremarksenum());
+            }
+            
+            public IEnumerator EditAddremarksenum()
+            {
+                if (editNoteGeneralPopup == true/*GameObject.Find("Editnotetitlelbl_").GetComponent<UILabel>().alpha==1*/)
+                {
+                    editNoteGeneralPopup = false;
+                    editNoteRemarkPopup = true;
+                    print("in if");
+                    TweenAlpha.Begin(GameObject.Find("EditNoteTitle_"), 0.5f, 0);
+                    TweenAlpha.Begin(GameObject.Find("EditNotebody_"), 0.5f, 0);
+                    GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+                    GameObject.Find("EditNotebody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+                    GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+                    LeanTween.scaleX(GameObject.Find("EditNote_"), 0, 1f);
+                    yield return new WaitForSeconds(1f);
+                    LeanTween.scaleX(GameObject.Find("EditNote_"), 1f, 1f);
+                    TweenAlpha.Begin(GameObject.Find("EditNoteRemarkTitle_"), 0.5f, 1);
+                    TweenAlpha.Begin(GameObject.Find("EditNoteRemarkBody_"), 0.5f, 1);
+                }
+                else if(editNoteRemarkPopup == true)
+                {
+                    editNoteGeneralPopup = true;
+                    editNoteRemarkPopup = false;
+                    print("in else");
+                    TweenAlpha.Begin(GameObject.Find("EditNoteRemarkTitle_"), 0.5f, 0);
+                    TweenAlpha.Begin(GameObject.Find("EditNoteRemarkBody_"), 0.5f, 0);
+                    GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+                    GameObject.Find("EditNotebody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+                    GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+                    LeanTween.scaleX(GameObject.Find("EditNote_"), 0, 1f);
+                    yield return new WaitForSeconds(1f);
+                    LeanTween.scaleX(GameObject.Find("EditNote_"), 1f, 1f);
+                    TweenAlpha.Begin(GameObject.Find("EditNoteTitle_"), 0.5f,1);
+                    TweenAlpha.Begin(GameObject.Find("EditNotebody_"), 0.5f, 1);
+                }
+            }
+            
+    		public void changeStatusOfNote()
 			{
-			TweenAlpha.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, 1);
-			TweenPosition.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, new Vector2(-4, -135));
-			//GameObject.Find("editNoteStatus").GetComponent<UILabel>().text=GameObject.Find("noteStatus_" + indexofnote).GetComponent<UILabel>().text;
-
+			    TweenAlpha.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, 1);
+			    TweenPosition.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, new Vector2(-4, -135));
 			}
-
+            
 			public void changeStatusToProven()
 			{
 			if (notestatusbool == false)
@@ -993,10 +1095,11 @@ public class notesaveScript : MonoBehaviour
 			TweenPosition.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, new Vector2(-4, -190));
 			}
 			}
-
+            
 			public void changeStatusToNotValidated()
 			{
-			if (notestatusbool == false)
+
+            if (notestatusbool == false)
 			{
 			print("notvalidate...false");
 			GameObject.Find("editNoteStatus").GetComponent<UILabel>().text = "Not Validated";
@@ -1004,7 +1107,8 @@ public class notesaveScript : MonoBehaviour
 			TweenAlpha.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, 0);
 			TweenPosition.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, new Vector2(-4, -190));
 			}
-			else
+
+            else
 			{
 			print("notvalidate...true");
 			GameObject.Find("editNoteStatus").GetComponent<UILabel>().text = "Not Validated";
@@ -1012,7 +1116,6 @@ public class notesaveScript : MonoBehaviour
 			TweenAlpha.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, 0);
 			TweenPosition.Begin(GameObject.Find("editNoteSelectNoteStatusContainer"), 0.5f, new Vector2(-4, -190));
 			}
-
 			}
 
 			IEnumerator updateoff()

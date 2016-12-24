@@ -572,8 +572,33 @@ public class CanvasScript : MonoBehaviour
 		if(GameObject.Find("newnoteGrid").transform.childCount == 1)
 			stickeynoteName2 = GameObject.Find("newnoteGrid").transform.GetChild(0).name;
 		btnname = UIButton.current.name;
+        globalnumberforedit = btnname.Substring(12, btnname.Length - 12);
+        if (GameObject.Find("notetitle_" + globalnumberforedit).GetComponent<UILabel>().alpha == 0)
+        {
+            notesaveScript.editNoteGeneralPopup = false;
+            notesaveScript.editNoteRemarkPopup = true;
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkTitle_"), 0, 1);
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkBody_"), 0, 1);
+            GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+            GameObject.Find("EditNotebody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+            GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+            TweenAlpha.Begin(GameObject.Find("EditNoteTitle_"), 0, 0);
+            TweenAlpha.Begin(GameObject.Find("EditNotebody_"), 0, 0);
+        }
+        else
+        {
+            notesaveScript.editNoteGeneralPopup = true;
+            notesaveScript.editNoteRemarkPopup = false;
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkTitle_"),0,0);
+            TweenAlpha.Begin(GameObject.Find("EditNoteRemarkBody_"), 0,0);
+            GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+            GameObject.Find("EditNotebody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = true;
+            GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().GetComponent<Collider>().enabled = false;
+            TweenAlpha.Begin(GameObject.Find("EditNoteTitle_"), 0, 1);
+            TweenAlpha.Begin(GameObject.Find("EditNotebody_"), 0, 1);
+        }
 
-		if (stickeynoteName1.Equals (btnname) || stickeynoteName2.Equals (btnname)) 
+        if (stickeynoteName1.Equals (btnname) || stickeynoteName2.Equals (btnname)) 
 		{
 			
 		} 
@@ -583,11 +608,11 @@ public class CanvasScript : MonoBehaviour
 			TweenScale.Begin(GameObject.Find("EditNote_"), 0.5f, new Vector3(1f, 1f, 0));
 			TweenAlpha.Begin(GameObject.Find("middleContainer"), 0, 0.1f);        
 			print("name_of_btn========" + btnname);
-			globalnumberforedit = btnname.Substring(12, btnname.Length - 12);
 			print("globalnumberforedit" + globalnumberforedit);
 			GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().value = GameObject.Find("notetitle_" + globalnumberforedit).GetComponent<UILabel>().text;
 			GameObject.Find("EditNotebody_").GetComponent<UIInput>().value = GameObject.Find("notecontent_" + globalnumberforedit).GetComponent<UILabel>().text;
 			GameObject.Find("editNoteStatus").GetComponent<UILabel>().text = GameObject.Find("noteStatus_" + globalnumberforedit).GetComponent<UILabel>().text;
+            GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().value = GameObject.Find("noteRemarkContent_" + globalnumberforedit).GetComponent<UILabel>().text;
 		}
     }
 
@@ -598,6 +623,8 @@ public class CanvasScript : MonoBehaviour
         TweenAlpha.Begin(GameObject.Find("BlackbgContainer"), 0.5f, 0f);
         GameObject.Find("notetitle_" + globalnumberforedit).GetComponent<UILabel>().text = GameObject.Find("EditNoteTitle_").GetComponent<UIInput>().value;
         GameObject.Find("notecontent_" + globalnumberforedit).GetComponent<UILabel>().text = GameObject.Find("EditNotebody_").GetComponent<UIInput>().value;
+        GameObject.Find("noteRemarkContent_" + globalnumberforedit).GetComponent<UILabel>().text = GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().value;
+        GameObject.Find("noteRemarkContent_" + globalnumberforedit).GetComponent<UILabel>().text = GameObject.Find("EditNoteRemarkBody_").GetComponent<UIInput>().value;
     }
 
     IEnumerator manualStart()
